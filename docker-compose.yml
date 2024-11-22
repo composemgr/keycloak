@@ -1,0 +1,47 @@
+name: keycloak
+services:
+  server:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak-server
+    hostname: keycloak
+    restart: always
+    command: start --proxy-headers=xforwarded
+    ports:
+      - '172.17.0.1:59035:8080'
+    environment:
+      - KC_HOSTNAME=keycloak.${BASEBASE_DOMAIN_NAME}
+      - KC_BOOTSTRAP_ADMIN_USERNAME=kc_admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=${APP_TEMP_PASS:s1I6nlqIxoKgJy1gRadhQ13A7kmY0uwnMWUqm5EumY}
+      - KC_HOSTNAME_STRICT=false
+      - KC_HTTP_ENABLED=true
+      - KC_PROXY=edge
+      - KC_PROXY_ADDRESS_FORWARDING=true
+      - KC_DB=postgres
+      - KC_DB_USERNAME=keycloak
+      - KC_DB_URL_HOST=keycloak-db
+      - KC_DB_URL_PORT=5432
+      - KC_DB_URL_DATABASE=keycloak
+      - KC_DB_PASSWORD=mpMvfhm_Emu0IDcwMtJRw8P8qjxtDnK3
+    depends_on:
+      - db
+    networks:
+      keycloak:
+
+  db:
+    image: postgres:16
+    container_name: keycloak-db
+    hostname: keycloak-db
+    restart: always
+    environment:
+      - POSTGRES_DB=keycloak
+      - POSTGRES_USER=keycloak
+      - POSTGRES_PASSWORD=mpMvfhm_Emu0IDcwMtJRw8P8qjxtDnK3
+    volumes:
+      - /var/lib/srv/$USER/docker/keycloak/keycloak/latest/rootfs/data/db/postgres:/var/lib/postgresql/data
+    networks:
+      keycloak:
+
+networks:
+  keycloak:
+    name: keycloak
+    external: false
