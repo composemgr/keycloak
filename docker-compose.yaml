@@ -1,5 +1,12 @@
 # nginx proxy address - http://172.17.0.1:59035
+
 name: keycloak
+x-logging: &default-logging
+  options:
+    max-size: '5m'
+    max-file: '1'
+  driver: json-file
+
 services:
   server:
     image: quay.io/keycloak/keycloak:latest
@@ -9,9 +16,9 @@ services:
     restart: always
     pull_policy: always
     command: start --proxy-headers=xforwarded
-    ports:
-      - '172.17.0.1:59035:8080'
+    logging: *default-logging
     environment:
+      - TZ=${TZ:-America/New_York}
       - KC_HOSTNAME=${BASE_HOST_NAME:-$$HOSTNAME}
       - KC_BOOTSTRAP_ADMIN_USERNAME=kcadmin@${BASE_DOMAIN_NAME:-$BASE_HOST_NAME}
       - KC_BOOTSTRAP_ADMIN_PASSWORD=${APP_TEMP_PASS:-lkdfjdlkjaflkjadlgknvczmbnvnoi4e}
@@ -25,8 +32,11 @@ services:
       - KC_DB_URL_PORT=5432
       - KC_DB_URL_DATABASE=keycloak
       - KC_DB_PASSWORD=mpMvfhm_Emu0IDcwMtJRw8P8qjxtDnK3
+    ports:
+      - '172.17.0.1:59035:8080'
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       keycloak:
 
@@ -36,12 +46,19 @@ services:
     hostname: keycloak-db
     restart: always
     pull_policy: always
+    logging: *default-logging
     environment:
+      - TZ=${TZ:-America/New_York}
       - POSTGRES_DB=keycloak
       - POSTGRES_USER=keycloak
       - POSTGRES_PASSWORD=mpMvfhm_Emu0IDcwMtJRw8P8qjxtDnK3
     volumes:
-      - /var/lib/srv/$USER/docker/keycloak/keycloak/latest/rootfs/data/db/postgres:/var/lib/postgresql/data
+      - /var/lib/srv/$USER/docker/db/postgres/keycloak:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -q -d $${POSTGRES_DB} -U $${POSTGRES_USER}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       keycloak:
 
