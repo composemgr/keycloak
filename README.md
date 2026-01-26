@@ -1,27 +1,36 @@
 ## 👋 Welcome to keycloak 🚀
 
-keycloak - Self-hosted Docker Compose deployment
+Open-source identity and access management
 
 ## 📋 Description
 
-Keycloak is a containerized service deployed using Docker Compose. This setup provides a complete, production-ready deployment with proper security defaults, logging, and configuration management.
+Open-source identity and access management
+
+## 🚀 Services
+
+- **app**: quay.io/keycloak/keycloak:latest
+
+### Infrastructure Components
+
+- **db**: Postgres database
+
 
 ## 📦 Installation
 
-### Using curl
-```shell
-curl -q -LSsf "https://raw.githubusercontent.com/composemgr/keycloak/main/docker-compose.yaml" | docker compose -f - up -d
+### Option 1: Quick Install
+```bash
+curl -q -LSsf "https://raw.githubusercontent.com/composemgr/keycloak/main/docker-compose.yaml" -o compose.yml
 ```
 
-### Using git
-```shell
+### Option 2: Git Clone
+```bash
 git clone "https://github.com/composemgr/keycloak" ~/.local/srv/docker/keycloak
 cd ~/.local/srv/docker/keycloak
 docker compose up -d
 ```
 
-### Using composemgr
-```shell
+### Option 3: Using composemgr
+```bash
 composemgr install keycloak
 ```
 
@@ -31,9 +40,14 @@ composemgr install keycloak
 
 ```shell
 TZ=America/New_York
-BASE_HOST_NAME=${HOSTNAME}
-BASE_DOMAIN_NAME=
+APP_ADMIN_USER=kcadmin
+APP_ADMIN_PASS=changeme_admin_password
+DB_USER_NAME=keycloak
+DB_USER_PASS=changeme_db_password
+DB_CREATE_DATABASE_NAME=keycloak
 ```
+
+See `docker-compose.yaml` for complete list of configurable options.
 
 ## 🌐 Access
 
@@ -41,43 +55,45 @@ BASE_DOMAIN_NAME=
 
 ## 📂 Volumes
 
-- `./rootfs/config/keycloak` - Configuration files
-- `./rootfs/data/keycloak` - Application data
+- `./rootfs/data/db/postgres/keycloak` - Data storage
 
 ## 🔐 Security
 
-- Change default passwords after first login
-- Use HTTPS via reverse proxy in production
-- Configure authentication as needed
+- Change all default passwords before deploying to production
+- Use strong secrets for all authentication tokens
+- Configure HTTPS using a reverse proxy (nginx, traefik, caddy)
+- Regularly update Docker images for security patches
+- Backup your data regularly
 
 ## 🔍 Logging
 
 ```shell
-docker compose logs -f
+docker compose logs -f app
 ```
 
 ## 🛠️ Management
 
-### Start services
-```shell
+```bash
+# Start services
 docker compose up -d
-```
 
-### Stop services
-```shell
+# Stop services
 docker compose down
-```
 
-### Update images
-```shell
+# Update to latest images
 docker compose pull && docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Restart services
+docker compose restart
 ```
 
 ## 📋 Requirements
 
 - Docker Engine 20.10+
 - Docker Compose V2+
-- Sufficient disk space for data and logs
 
 ## 🤝 Author
 
