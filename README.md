@@ -55,7 +55,7 @@ See `docker-compose.yaml` for complete list of configurable options.
 
 ## 📂 Volumes
 
-- `./rootfs/data/db/postgres/keycloak` - Data storage
+- `./volumes/data/db/postgres/keycloak` - Data storage
 
 ## 🔐 Security
 
