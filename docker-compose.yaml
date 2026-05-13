@@ -11,7 +11,7 @@ services:
   app:
     image: quay.io/keycloak/keycloak:latest
     container_name: keycloak-app
-    domainname: ${BASE_DOMAIN_NAME:-}
+    domainname: ${BASE_DOMAIN_NAME:-example.com}
     hostname: ${BASE_HOST_NAME:-$HOSTNAME}
     restart: always
     pull_policy: always
@@ -41,7 +41,7 @@ services:
       - keycloak
 
   db:
-    image: postgres:16
+    image: postgres:latest
     container_name: keycloak-db
     hostname: keycloak-db
     restart: always
