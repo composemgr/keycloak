@@ -32,6 +32,8 @@ services:
       KC_DB_URL_HOST: keycloak-db
       KC_DB_URL_PORT: 5432
       KC_DB_URL_DATABASE: ${DB_CREATE_DATABASE_NAME:-keycloak}
+      CONTAINER_NAME: keycloak-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
     ports:
       - '172.17.0.1:59035:8080'
     depends_on:
@@ -39,6 +41,24 @@ services:
         condition: service_healthy
     networks:
       - keycloak
+      - proxy
+      - cloudflare
+    labels:
+      - 'traefik.enable=true'
+      - 'cloudflare.enable=true'
+      - 'traefik.docker.network=proxy'
+      - 'cloudflare.service=http://keycloak-app:8080'
+      - 'cloudflare.hostname=keycloak.${CLOUDFLARE_ZONE_NAME:-}'
+      - 'traefik.http.routers.keycloak-app.entrypoints=http'
+      - 'traefik.http.routers.keycloak-app-secure.tls=true'
+      - 'traefik.http.routers.keycloak-app.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
+      - 'traefik.http.middlewares.keycloak-app-https-redirect.redirectscheme.scheme=https'
+      - 'traefik.http.routers.keycloak-app.middlewares=keycloak-app-https-redirect'
+      - 'traefik.http.routers.keycloak-app-secure.entrypoints=https'
+      - 'traefik.http.routers.keycloak-app-secure.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
+      - 'traefik.http.routers.keycloak-app-secure.tls.certresolver=cloudflare'
+      - 'traefik.http.routers.keycloak-app-secure.service=keycloak-app'
+      - 'traefik.http.services.keycloak-app.loadbalancer.server.port=8080'
 
   db:
     image: postgres:latest
@@ -52,6 +72,7 @@ services:
       POSTGRES_DB: ${DB_CREATE_DATABASE_NAME:-keycloak}
       POSTGRES_USER: ${DB_USER_NAME:-keycloak}
       POSTGRES_PASSWORD: ${DB_USER_PASS:-changeme_db_password}
+      CONTAINER_NAME: keycloak-db
     volumes:
       - './volumes/data/db/postgres/keycloak:/var/lib/postgresql/data'
     healthcheck:
@@ -67,3 +88,7 @@ networks:
   keycloak:
     name: keycloak
     external: false
+  proxy:
+    external: true
+  cloudflare:
+    external: true
