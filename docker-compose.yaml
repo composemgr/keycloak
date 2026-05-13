@@ -24,8 +24,7 @@ services:
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${APP_ADMIN_PASS:-changeme_admin_password}
       KC_HOSTNAME_STRICT: false
       KC_HTTP_ENABLED: true
-      KC_PROXY: edge
-      KC_PROXY_ADDRESS_FORWARDING: true
+      KC_PROXY_HEADERS: xforwarded
       KC_DB: postgres
       KC_DB_USERNAME: ${DB_USER_NAME:-keycloak}
       KC_DB_PASSWORD: ${DB_USER_PASS:-changeme_db_password}
