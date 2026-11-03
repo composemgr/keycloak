@@ -33,6 +33,12 @@ services:
       KC_DB_URL_DATABASE: ${DB_CREATE_DATABASE_NAME:-keycloak}
       KC_DB_USERNAME: ${DB_USER_NAME:-keycloak}
       KC_DB_PASSWORD: ${DB_USER_PASS:-replace-with-a-random-password}
+    healthcheck:
+      test: ['CMD', 'bash', '-c', 'exec 3<>/dev/tcp/127.0.0.1/8080']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     ports:
       - '172.17.0.1:64223:8080'
     depends_on:
